@@ -1,3 +1,25 @@
-.body {
+.container {
+    display: flex;
+    background-color: #FFA500;
     font-family: Helvetica;
+    width: 100%;
+    margin: 0px;
+    position:relative;
+    height: 100%;
+    align-items: center;
+    margin-top: -10px;
+    white-space:nowrap
+}
+
+.container>li {
+    flex: 1;
+}
+
+@media all and (max-width: 400px) {
+    .container>li {
+        flex-basis: 100%;
+    }
+    .search {
+        order: 1;
+    }
 }
