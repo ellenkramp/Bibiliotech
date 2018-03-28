@@ -1,0 +1,6 @@
+
+-No "var" variable declarations, let and const only
+-Strict mode
+-ESLint
+-No unused variables and console.logs
+-4 spaces per indent
