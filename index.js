@@ -22,19 +22,19 @@ let populateAuthedFiles = (authedFiles = [],
             let foundINodes = [];
             readFiles.forEach((entry) =>{
                 foundINodes.push(
-                    stat(startingPath + entry).then((stats) => {
-                        if (stats.isFile()){
-                            authedFiles.push(startingPath + entry);
-                        }
+                stat(startingPath + entry).then((stats) => {
+                    if (stats.isFile()){
+                        authedFiles.push(startingPath + entry);
+                    }
 
-                        else {
-                            populateAuthedFiles(authedFiles, startingPath + entry + "/")
-                                .then((moreAuthedFiles) =>{
-                                    authedFiles = authedFiles.concat(moreAuthedFiles);
-                                });
-                        }
-                    })
-                );
+                    else {
+                        populateAuthedFiles(authedFiles, startingPath + entry + "/")
+                            .then((moreAuthedFiles) =>{
+                                authedFiles = authedFiles.concat(moreAuthedFiles);
+                            });
+                    }
+                });
+            );
             });
             Promise.all(foundINodes).then( () => {
                 resolve(authedFiles);
