@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-let sodium = require("sodium");
+let sodium = require("sodium").api;
 
 const http = require("http");
 const uuidv4 = require("uuid/v4");
@@ -7,6 +7,15 @@ const fs = require("fs");
 const {promisify} = require("util");
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
+
+const dbConfig ={
+    host:"localhost",
+    port:5432,
+    database: "phonebook",
+    user:"terryp"
+}
+const pg = require("pg-promise")();
+const phoneBook = pg(dbConfig);
 
 
 const landingPage = "static/index.html";
@@ -42,6 +51,16 @@ let populateAuthedFiles = (authedFiles = [],
         });
     });
 };
+console.dir(sodium);
+let login = (username, password) => {
+    let passBuffer = Buffer.from(password);
+    let hashed = sodium.crypto_pwhash_str(passBuffer,
+        sodium.crypto_pwhash_OPSLIMIT_MODERATE,
+        sodium.crypto_pwhash_MEMLIMIT_MODERATE).toString();
+    // if (hashed ===
+};
+
+
 
 let server = http.createServer((request, response) => {
     const router = {};
@@ -76,9 +95,8 @@ let server = http.createServer((request, response) => {
         response.end(`Woops ${request.url} doesn't exits.`);
     }
 });
-
+login("pirate","pirate");
 populateAuthedFiles().then((authedFiles) => {
-    console.log(authedFiles);
     server.authedFiles = authedFiles;
     server.listen(3000);
 });
