@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>HTML5 boilerplate – all you really need…</title>
+    <link rel="stylesheet" href="main.css">
+    <!--[if IE]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+
+<body id="home">
+<input name="searchInput" type="search">
+<select name="searchBy">
+    <option value="intitle:">Title</option>
+    <option value="subject:">Year</option>
+    <option value="inauthor:">Author</option>
+    <option value="isbn:">ISBN</option>
+  </select>
+<button name="search" type="submit">Search</button>
+<container id="results">
+    <div id="viewerCanvas" style="width: 600px; height: 500px"></div>
+</container>
+<script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
+<script type="text/javascript" src="main.js"></script>
+</body>
+
+</html>
