@@ -57,12 +57,23 @@ let populateAuthedFiles = (authedFiles = [],
 
 
 let createAccount = (request) => {
-    let body = "";
-    request.on("data", (chunck) => {
-        body += chunck;
+    let receivedData = "";
+    let body;
+    request.on("data", (chunk) => {
+        receivedData += chunk;
     });
     request.on("end",() => {
         return new Promise( (resolve, reject) => {
+            try {
+                body = JSON.parse(receivedData);
+            }
+            catch (error){
+                if (error.name === "SyntaxError"){
+                    error.statusCode = 400;
+                    error.message = "Invaild JSON received.";
+                    reject(error);
+                }
+            }
             let username = body["username"];
             let password = body["password"];
             let passBuffer = Buffer.from(password);
@@ -88,13 +99,24 @@ let createAccount = (request) => {
 
 
 let login = (request) => {
+    let receivedData = "";
     return new Promise( (resolve, reject) => {
-        let body = "";
+        let body;
         let data = {};
-        request.on("data", (chunck) => {
-            body += chunck;
+        request.on("data", (chunk) => {
+            receivedData += chunk;
         });
         request.on("end",() => {
+            try {
+                body = JSON.parse(receivedData);
+            }
+            catch (error){
+                if (error.name === "SyntaxError"){
+                    error.statusCode = 400;
+                    error.message = "Invaild JSON received.";
+                    reject(error);
+                }
+            }
             let password = body["password"];
             let username =  body["username"];
             let passBuffer = Buffer.from(password);
