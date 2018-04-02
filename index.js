@@ -131,8 +131,8 @@ let login = (request) => {
             query.then( (query) => {
                 let pass = sodium.crypto_pwhash_str_verify(Buffer.from(query["password"]),passBuffer);
                 if (pass) {
-                    data["response"] = jwt.sign(username, process.env.JWT_SECRET,
-                        {expiresIn:"7d"});
+                    data["response"] = jwt.sign({id:userID},
+                        process.env.JWT_SECRET, {expiresIn:"7d"});
                     resolve(data);
                 }
                 else {
@@ -144,13 +144,54 @@ let login = (request) => {
         });
     });
 };
+let user = (request) => {
+    return new Promise( (resolve, reject) => {
+        let response = {};
+        response["response"] = {};
+        jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
+            (err, loginObject) => {
+                userID = loginObject[id];
+                if (err) {
+                    response["statusCode"] = 401;
+                    response["message"] = "Login failed";
+                    reject(response);
+                }
+                else {
+                    LDB.query("SELECT username FROM users WHERE id = userID")
+                        .then( (data) => {
+                            response["response"]["username"] = data["username"];
+                        }).catch( () => {
+                            response["statusCode"] = 404;
+                            response["message"] = `User: ${userID} not found.`;
+                        });
+                    LDB.query("SELECT users.username, user_books.avaible_to_lend,"+
+                " books.isbn, books.asin, books.title, books.author,"+
+                " books.publicationDate, books.thumbnail, books.cover,"+
+                " books.publisher, books.format, books.id AS book_id FROM users"+
+                " JOIN user_books ON users.id = user_books.owner JOIN books on"+
+                " user_books.book_id = books.id WHERE users.id = $1",userID)
+                        .then( (data) => {
+                            console.dir(data);
+                            response["response"]["books"] = data;
+                        }).catch( () => {
+                            response["statusCode"] = 500;
+                            reject(response);
+                        });
+                }
+            });
+    });
+};
 
 
 
 let server = http.createServer((request, response) => {
+    console.log(request.method);
     const router = {"POST":
     {"login":login,
-    "register":createAccount}
+        "register":createAccount},
+    "GET":
+        {"user":user}//,
+            //"search":search}
     };
 
     if (request.url === "/"){
@@ -182,6 +223,9 @@ let server = http.createServer((request, response) => {
         response.statusCode = 404;
         response.end(`Woops ${request.url} doesn't exits.`);
     }
+});
+login("terry","pirate").then(token => {
+    console.dir(token);
 });
 
 populateAuthedFiles().then((authedFiles) => {

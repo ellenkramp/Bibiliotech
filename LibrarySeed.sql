@@ -6,8 +6,8 @@ CREATE TABLE users(
 );
 
 CREATE TABLE books(
-    isbn VARCHAR(13),
-    asin VARCHAR(10),
+    isbn VARCHAR(13) UNIQUE,
+    asin VARCHAR(10) UNIQUE,
     title TEXT NOT NULL,
     author TEXT,
     publicationDate DATE,
@@ -26,7 +26,7 @@ CREATE TABLE library(
 CREATE TABLE user_books(
     book_id UUID NOT NULL REFERENCES books (id) ,
     owner UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    avaible_to_lend BOOLEAN NOT NULL
+    available_to_lend BOOLEAN NOT NULL
 );
 
 CREATE TABLE borrowed_books(
@@ -60,8 +60,3 @@ CREATE TABLE editions(
     paperback UUID REFERENCES books (id),
     hardcover UUID REFERENCES books (id)
 );
-
--- INSERT INTO users (id, username, password)
--- VALUES ('9c2fb1ae-5a96-42a6-be93-88771a478eba','terry',
---     '$argon2id$v=19$m=262144,t=3,p=1$xwQjLVoXqjFctJm5KC7Vpg$nM9H0y1PyilFJu7uKkgT8FO8xP2g46ZxyO/LlMp5dMY\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000'
--- );
