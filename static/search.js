@@ -1,6 +1,7 @@
 "Use strict";
 const address = 'https://www.googleapis.com/books/v1/volumes?q=';
 const key = '&key=AIzaSyAqMcQj6rxs6dXYzTytATx9lz558CHvKCc';
+let container = document.getElementById('results');
 let query = async (searchterms) => {
     let searchBy = document.querySelector('[name=searchBy]');
     let parameters = searchBy.options[searchBy.selectedIndex].value;
@@ -15,36 +16,38 @@ let query = async (searchterms) => {
     )
     console.log(response);
     let results = response.items;
-    populate(results);
+    populate(results, container);
 }
 
-let getBookData = (volume) => {
+let getBookData = (volume, bookId) => {
     let thumbnailSrc;
     let defaultImg = 'http://nobacks.com/wp-content/uploads/2014/11/Book-2.png';
-    thumbnailSrc = volume["imageLinks"].smallThumbnail
-        // thumbnailSrc = JSON.stringify(volume.imageLinks.smallThumbnail);
-        
+    thumbnailSrc = volume["imageLinks"].smallThumbnail   
     console.log(thumbnailSrc);
     if (thumbnailSrc == false) {
         thumbnailSrc = defaultImg;
     }
+    let identifiers = volume.industryIdentifiers;
+    console.log(identifiers);
+    let isbn;
+    for (var i=0; i<identifiers.length; i++) {
+        if (identifiers[i].type === "ISBN_13") {
+            isbn = identifiers[i].identifier;
+        }
+        else if (identifiers[i].type === "ISBN_10") {
+            isbn = identifiers[i].identifier;
+        }
+        else {
+            isbn = "none";
+        }
+
+    };
     let bookData = {
         title: volume.title,
         author: volume.authors,
         thumbnail: thumbnailSrc,
-        publishedDate: volume.publishedDate
-    };
-    let identifiers = volume.industryIdentifiers;
-    console.log(identifiers);
-    for (var i=0; i<identifiers.length; i++) {
-        if (identifiers[i].type["ISBN_10"]) {
-            let asin = identifiers[i].type["ISBN_10"];
-            console.log(asin);
-        }
-        if (identifiers[i].type["ISBN_10"]) {
-            let isbn = identifiers[i].type["ISBN_13"];
-            console.log(isbn);
-        }
+        publishedDate: volume.publishedDate,
+        ISBN: isbn
     };
 
     console.log(bookData);
@@ -52,17 +55,17 @@ let getBookData = (volume) => {
     return bookData;
 };
 
-let populate = (results) => {
-    let container = document.getElementById('results');
+let populate = (results, container) => {
     for (var i=0; i<results.length; i++) {
         let volume = results[i].volumeInfo;
-        let bookData = getBookData(volume);
+        let bookId = results[i].id;
+        let bookData = getBookData(volume, bookId);
         let volumeContainer = document.createElement('container');
         let li = document.createElement('li');
         let img = document.createElement('img');
         let button = document.createElement('button');
         button.setAttribute('value', 'addBook');
-        button.innerHTML = 'Add Book';
+        button.textContent = 'Add Book';
         img.setAttribute('width', '100px');
         if (bookData.thumbnail) {
             img.setAttribute('src', bookData.thumbnail);
@@ -91,7 +94,9 @@ let searchFunction = () => {
         query(searchterms);
         inputField.value = "";
         let container = document.getElementById('results');
-        container.innerHTML="";
+        while (container.lastChild) { 
+            container.removeChild(container.lastChild) 
+        };
     });
 
 }
