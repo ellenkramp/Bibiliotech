@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>title</title>
+    <link rel="stylesheet" href="stylesheet.css" type="text/css">
+</head>
+
+<body id="home">
+    <input name="searchInput" type="search">
+    <select name="searchBy">
+        <option value="intitle:">Title</option>
+        <option value="subject:">Year</option>
+        <option value="inauthor:">Author</option>
+        <option value="isbn:">ISBN</option>
+      </select>
+    <button name="search" type="submit">Search</button>
+    <container id="results">
+        <div id="viewerCanvas" style="width: 600px; height: 500px"></div>
+    </container>
+    <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
+    <script type="text/javascript" src="search.js"></script>
+</body>
+
+</html>
+
