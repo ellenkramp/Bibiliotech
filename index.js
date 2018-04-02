@@ -54,6 +54,8 @@ let populateAuthedFiles = (authedFiles = [],
         });
     });
 };
+
+
 let createAccount = (username, password) => {
     return new Promise( (resolve, reject) => {
         let passBuffer = Buffer.from(password);
@@ -74,6 +76,8 @@ let createAccount = (username, password) => {
         });
     })
 };
+
+
 let login = (username, password) => {
     return new Promise( (resolve, reject) => {
         let passBuffer = Buffer.from(password);
@@ -130,6 +134,7 @@ let server = http.createServer((request, response) => {
         response.end(`Woops ${request.url} doesn't exits.`);
     }
 });
+
 populateAuthedFiles().then((authedFiles) => {
     server.authedFiles = authedFiles;
     server.listen(3000);
