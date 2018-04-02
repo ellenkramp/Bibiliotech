@@ -2,7 +2,7 @@
 CREATE TABLE users(
     id UUID PRIMARY KEY,
     username TEXT NOT NUll,
-    password bytea NOT NULL
+    password BYTEA NOT NULL
 );
 
 CREATE TABLE books(

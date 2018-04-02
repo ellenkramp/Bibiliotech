@@ -7,6 +7,8 @@ const fs = require("fs");
 const {promisify} = require("util");
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const dbConfig ={
     host:"localhost",
@@ -53,41 +55,43 @@ let populateAuthedFiles = (authedFiles = [],
     });
 };
 let createAccount = (username, password) => {
-    let passBuffer = Buffer.from(password);
-    let id = uuidv4();
-    let hashed = sodium.crypto_pwhash_str(passBuffer,
-        sodium.crypto_pwhash_OPSLIMIT_MODERATE,
-        sodium.crypto_pwhash_MEMLIMIT_MODERATE).toString();
-    let query = pg.as.format("INSERT INTO users(username, password, id) VALUES(${username}, ${password}, ${id})"
-        , {column:"users",
-            username:username,
-            password:hashed,
-            id:id
+    return new Promise( (resolve, reject) => {
+        let passBuffer = Buffer.from(password);
+        let id = uuidv4();
+        let hashed = sodium.crypto_pwhash_str(passBuffer,
+            sodium.crypto_pwhash_OPSLIMIT_MODERATE,
+            sodium.crypto_pwhash_MEMLIMIT_MODERATE);
+        let query = pg.as.format("INSERT INTO users(username, password, id) VALUES(${username}, ${password}, ${id})"
+            , {column:"users",
+                username:username,
+                password:hashed,
+                id:id
+            });
+        LDB.none(query).then( () => {
+            resolve(login(username, password));
+        }).catch( (err) => {
+            reject(err);
         });
-    LDB.none(query).then( () => {
-        //login(username, password);
-    }).catch( (err) => {
-        console.trace(err);
-    });
-    console.log(query);
+    })
 };
 let login = (username, password) => {
-    let passBuffer = Buffer.from(password);
-    let hashed = sodium.crypto_pwhash_str(passBuffer,
-        sodium.crypto_pwhash_OPSLIMIT_MODERATE,
-        sodium.crypto_pwhash_MEMLIMIT_MODERATE).toString();
-    let query = LDB.one("SELECT ${column:name} FROM ${table:name} WHERE ${comparisonColumn:name} = ${target} ",
-        {column:"password",
-            table:"users",
-            comparisonColumn:"username",
-            target:username}).catch( (err) => {
-        console.log(err);
-    });
-    query.then( (query) => {
-        console.dir(hashed);
-        console.dir(query["password"]);
-        let pass = sodium.crypto_pwhash_str_verify(Buffer.from(query["password"]),passBuffer);
-        console.log(pass);
+    return new Promise( (resolve, reject) => {
+        let passBuffer = Buffer.from(password);
+        let query = LDB.one("SELECT ${column:name} FROM ${table:name} WHERE ${comparisonColumn:name} = ${target} ",
+            {column:"password",
+                table:"users",
+                comparisonColumn:"username",
+                target:username}).catch( (err) => {
+            reject(err);
+        });
+        query.then( (query) => {
+            let pass = sodium.crypto_pwhash_str_verify(Buffer.from(query["password"]),passBuffer);
+            if (pass) {
+                resolve(jwt.sign(username, process.env.JWT_SECRET,
+                    {expiresIn:"7d"}
+                ));
+            }
+        });
     });
 };
 
@@ -126,8 +130,7 @@ let server = http.createServer((request, response) => {
         response.end(`Woops ${request.url} doesn't exits.`);
     }
 });
-createAccount("terry","pirate");
-// populateAuthedFiles().then((authedFiles) => {
-//     server.authedFiles = authedFiles;
-//     server.listen(3000);
-// });
+populateAuthedFiles().then((authedFiles) => {
+    server.authedFiles = authedFiles;
+    server.listen(3000);
+});
