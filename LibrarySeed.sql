@@ -2,7 +2,7 @@
 CREATE TABLE users(
     id UUID PRIMARY KEY,
     username TEXT NOT NUll,
-    password CHAR(60) NOT NULL
+    password BYTEA NOT NULL
 );
 
 CREATE TABLE books(
@@ -30,7 +30,7 @@ CREATE TABLE user_books(
 );
 
 CREATE TABLE borrowed_books(
-    book_id UUID REFERENCES books (id) ON  ON DELETE CASCADE NOT NULL,
+    book_id UUID REFERENCES books (id) ON DELETE CASCADE NOT NULL,
     borrower_id UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     returnDate DATE,
     owner_id UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL
@@ -60,3 +60,8 @@ CREATE TABLE editions(
     paperback UUID REFERENCES books (id),
     hardcover UUID REFERENCES books (id)
 );
+
+-- INSERT INTO users (id, username, password)
+-- VALUES ('9c2fb1ae-5a96-42a6-be93-88771a478eba','terry',
+--     '$argon2id$v=19$m=262144,t=3,p=1$xwQjLVoXqjFctJm5KC7Vpg$nM9H0y1PyilFJu7uKkgT8FO8xP2g46ZxyO/LlMp5dMY\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000'
+-- );
