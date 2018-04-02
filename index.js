@@ -11,11 +11,11 @@ const stat = promisify(fs.stat);
 const dbConfig ={
     host:"localhost",
     port:5432,
-    database: "phonebook",
+    database: "biblotech",
     user:"terryp"
-}
+};
 const pg = require("pg-promise")();
-const phoneBook = pg(dbConfig);
+const LDB = pg(dbConfig);
 
 
 const landingPage = "static/index.html";
@@ -31,19 +31,20 @@ let populateAuthedFiles = (authedFiles = [],
             let foundINodes = [];
             readFiles.forEach((entry) =>{
                 foundINodes.push(
-                stat(startingPath + entry).then((stats) => {
-                    if (stats.isFile()){
-                        authedFiles.push(startingPath + entry);
-                    }
-
-                    else {
-                        populateAuthedFiles(authedFiles, startingPath + entry + "/")
-                            .then((moreAuthedFiles) =>{
-                                authedFiles = authedFiles.concat(moreAuthedFiles);
-                            });
-                    }
-                });
-            );
+                    stat(startingPath + entry).then((stats) => {
+                        if (stats.isFile()){
+                            authedFiles.push(startingPath + entry);
+                        }
+                        else {
+                            populateAuthedFiles(authedFiles,
+                                startingPath + entry + "/")
+                                .then((moreAuthedFiles) =>{
+                                    authedFiles = authedFiles.concat(
+                                        moreAuthedFiles);
+                                });
+                        }
+                    })
+                );
             });
             Promise.all(foundINodes).then( () => {
                 resolve(authedFiles);
@@ -51,13 +52,43 @@ let populateAuthedFiles = (authedFiles = [],
         });
     });
 };
-console.dir(sodium);
+let createAccount = (username, password) => {
+    let passBuffer = Buffer.from(password);
+    let id = uuidv4();
+    let hashed = sodium.crypto_pwhash_str(passBuffer,
+        sodium.crypto_pwhash_OPSLIMIT_MODERATE,
+        sodium.crypto_pwhash_MEMLIMIT_MODERATE).toString();
+    let query = pg.as.format("INSERT INTO users(username, password, id) VALUES(${username}, ${password}, ${id})"
+        , {column:"users",
+            username:username,
+            password:hashed,
+            id:id
+        });
+    LDB.none(query).then( () => {
+        //login(username, password);
+    }).catch( (err) => {
+        console.trace(err);
+    });
+    console.log(query);
+};
 let login = (username, password) => {
     let passBuffer = Buffer.from(password);
     let hashed = sodium.crypto_pwhash_str(passBuffer,
         sodium.crypto_pwhash_OPSLIMIT_MODERATE,
         sodium.crypto_pwhash_MEMLIMIT_MODERATE).toString();
-    // if (hashed ===
+    let query = LDB.one("SELECT ${column:name} FROM ${table:name} WHERE ${comparisonColumn:name} = ${target} ",
+        {column:"password",
+            table:"users",
+            comparisonColumn:"username",
+            target:username}).catch( (err) => {
+        console.log(err);
+    });
+    query.then( (query) => {
+        console.dir(hashed);
+        console.dir(query["password"]);
+        let pass = sodium.crypto_pwhash_str_verify(Buffer.from(query["password"]),passBuffer);
+        console.log(pass);
+    });
 };
 
 
@@ -95,8 +126,8 @@ let server = http.createServer((request, response) => {
         response.end(`Woops ${request.url} doesn't exits.`);
     }
 });
-login("pirate","pirate");
-populateAuthedFiles().then((authedFiles) => {
-    server.authedFiles = authedFiles;
-    server.listen(3000);
-});
+createAccount("terry","pirate");
+// populateAuthedFiles().then((authedFiles) => {
+//     server.authedFiles = authedFiles;
+//     server.listen(3000);
+// });
