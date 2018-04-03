@@ -2,12 +2,12 @@
 CREATE TABLE users(
     id UUID PRIMARY KEY,
     username TEXT NOT NUll,
-    password CHAR(60) NOT NULL
+    password BYTEA NOT NULL
 );
 
 CREATE TABLE books(
-    isbn VARCHAR(13),
-    asin VARCHAR(10),
+    isbn VARCHAR(13) UNIQUE,
+    asin VARCHAR(10) UNIQUE,
     title TEXT NOT NULL,
     author TEXT,
     publicationDate DATE,
@@ -30,7 +30,7 @@ CREATE TABLE user_books(
 );
 
 CREATE TABLE borrowed_books(
-    book_id UUID REFERENCES books (id) ON  ON DELETE CASCADE NOT NULL,
+    book_id UUID REFERENCES books (id) ON DELETE CASCADE NOT NULL,
     borrower_id UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     returnDate DATE,
     owner_id UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL
