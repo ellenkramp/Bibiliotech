@@ -261,6 +261,19 @@ let server = http.createServer((request, response) => {
 
         else if (server.authedFiles.includes(
             `${userFacingDirectory}${request.url}`)){
+            let dotoffset = request.url.lastIndexOf(".");
+            let mimetype = dotoffset == -1
+                ? "text/plain"
+                : {
+                    ".html" : "text/html",
+                    ".ico" : "image/x-icon",
+                    ".jpg" : "image/jpeg",
+                    ".png" : "image/png",
+                    ".gif" : "image/gif",
+                    ".css" : "text/css",
+                    ".js" : "text/javascript"
+                }[ request.url.substr(dotoffset) ];
+            response.setHeader("Content-type" , mimetype);
             fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",
                 (err,data) => {
                     response.end(data);
