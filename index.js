@@ -57,97 +57,139 @@ let populateAuthedFiles = (authedFiles = [],
 
 
 let createAccount = (request) => {
-    let receivedData = "";
-    let body;
-    request.on("data", (chunk) => {
-        receivedData += chunk;
-    });
-    request.on("end",() => {
-        return new Promise( (resolve, reject) => {
-            try {
-                body = JSON.parse(receivedData);
-            }
-            catch (error){
-                if (error.name === "SyntaxError"){
-                    error.statusCode = 400;
-                    error.message = "Invaild JSON received.";
-                    reject(error);
-                }
-            }
-            let username = body["username"];
-            let password = body["password"];
-            let passBuffer = Buffer.from(password);
-            let id = uuidv4();
-            let hashed = sodium.crypto_pwhash_str(passBuffer,
-                sodium.crypto_pwhash_OPSLIMIT_MODERATE,
-                sodium.crypto_pwhash_MEMLIMIT_MODERATE);
-            let query = pg.as.format("INSERT INTO users(username, password, id)"
-            +"VALUES(${username}, ${password}, ${id})"
-                , {column:"users",
-                    username:username,
-                    password:hashed,
-                    id:id
-                });
-            LDB.none(query).then( () => {
-                resolve(login(username, password));
-            }).catch( (err) => {
-                err.statusCode = 501;
-                reject(err);
-            });
+    return new Promise( async (resolve, reject) => {
+        let body = await receiveBody(request);
+        let username = body["username"];
+        let password = body["password"];
+        let passBuffer = Buffer.from(password);
+        let id = uuidv4();
+        let hashed = sodium.crypto_pwhash_str(passBuffer,
+            sodium.crypto_pwhash_OPSLIMIT_MODERATE,
+            sodium.crypto_pwhash_MEMLIMIT_MODERATE);
+        let query = pg.as.format("INSERT INTO users(username, password, id)"+
+        " VALUES(${username}, ${password}, ${id})"
+            , {column:"users",
+            username:username,
+            password:hashed,
+            id:id
+        });
+        LDB.none(query).then( () => {
+            resolve(login(request,body));
+        }).catch( (err) => {
+            err.statusCode = 501;
+            reject(err);
         });
     });
 };
 
 
-let login = (request) => {
-    let receivedData = "";
+let login = (request, body) => {
+    return new Promise( async (resolve, reject) => {
+        if (!body) {
+            body = await receiveBody(request);
+        }
+        let password = body["password"];
+        let username =  body["username"];
+        verifyPasword(username, password).then( (data) => {
+            let response = {};
+            let pass = data[0];
+            if (pass) {
+                createToken(data[1]).then( (token) => {
+                    response["response"] = token;
+                    resolve(response);
+                });
+            }
+            else {
+                response["statusCode"] = 401;
+                response["message"] = "Login Failed";
+                reject(response);
+            }
+        });
+    });
+};
+let user = (request) => {
     return new Promise( (resolve, reject) => {
-        let body;
-        let data = {};
+        let response = {};
+        response["response"] = {};
+        jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
+            (err, loginObject) => {
+                let userID = loginObject["id"];
+                if (err) {
+                    response["statusCode"] = 401;
+                    response["message"] = "Login failed";
+                    reject(response);
+                }
+                else {
+                    LDB.query("SELECT username FROM users WHERE id = userID")
+                        .then( (data) => {
+                            response["response"]["username"] = data["username"];
+                        }).catch( () => {
+                            response["statusCode"] = 404;
+                            response["message"] = `User: ${userID} not found.`;
+                        });
+                    LDB.query("SELECT users.username, user_books.avaible_to_lend,"+
+                " books.isbn, books.asin, books.title, books.author,"+
+                " books.publicationDate, books.thumbnail, books.cover,"+
+                " books.publisher, books.format, books.id AS book_id FROM users"+
+                " JOIN user_books ON users.id = user_books.owner JOIN books on"+
+                " user_books.book_id = books.id WHERE users.id = $1",userID)
+                        .then( (data) => {
+                            response["response"]["books"] = data;
+                        }).catch( () => {
+                            response["statusCode"] = 500;
+                            reject(response);
+                        });
+                }
+            });
+    });
+};
+
+let receiveBody = (request) => {
+    return new Promise ( (resolve, reject) => {
+        let receivedData = "";
         request.on("data", (chunk) => {
             receivedData += chunk;
         });
         request.on("end",() => {
             try {
-                body = JSON.parse(receivedData);
+                resolve(JSON.parse(receivedData));
             }
             catch (error){
-                if (error.name === "SyntaxError"){
-                    error.statusCode = 400;
-                    error.message = "Invaild JSON received.";
-                    reject(error);
-                }
+                error.statusCode = 400;
+                error.message = error;
+                reject(error);
             }
-            let password = body["password"];
-            let username =  body["username"];
-            let passBuffer = Buffer.from(password);
-            let query = LDB.one("SELECT password, id FROM ${table:name}"+
-            " WHERE ${comparisonColumn:name} = ${target} ",
-                {table:"users",
-                    comparisonColumn:"username",
-                    target:username}).catch( (err) => {
-                err.statusCode = 501;
-                reject(err);
-            });
-            query.then( (query) => {
-                let pass = sodium.crypto_pwhash_str_verify(
-                    Buffer.from(query["password"]),passBuffer);
-                if (pass) {
-                    data["response"] = jwt.sign(query["id"],
-                        process.env.JWT_SECRET, {expiresIn:"7d"});
-                    resolve(data);
-                }
-                else {
-                    data["statusCode"] = 401;
-                    data["message"] = "Login Failed";
-                    reject(data);
-                }
-            });
+
         });
     });
 };
 
+let verifyPasword = (username, password) => {
+    return new Promise ( (resolve, reject) => {
+        let passBuffer = Buffer.from(password);
+        console.log("Getting user information");
+        resolve(LDB.one("SELECT password, id FROM ${table:name}"+
+        " WHERE ${comparisonColumn:name} = ${target} ",
+        {column:"password",
+            table:"users",
+            comparisonColumn:"username",
+            target:username}).catch( (err) => {
+            err.statusCode = 501;
+            reject(err);
+        }).then( (data) => {
+            return [sodium.crypto_pwhash_str_verify(Buffer.from(data["password"]),
+                passBuffer),data["id"]];
+        }));
+    });
+};
 
+
+let createToken  = userId => {
+    return new Promise( (resolve) => {
+        resolve(jwt.sign({id:userId},
+            process.env.JWT_SECRET, {expiresIn:"7d"}));
+    });
+};
 let newBook = (request) => {
     return new Promise( (resolve, reject) => {
         jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
@@ -197,6 +239,7 @@ let newBook = (request) => {
                         });
                 });
             });
+
     });
 };
 
@@ -244,7 +287,8 @@ let server = http.createServer((request, response) => {
         response.end();
     }
 });
-login("terry","pirate");
+
+
 populateAuthedFiles().then((authedFiles) => {
     server.authedFiles = authedFiles;
     server.listen(3000);

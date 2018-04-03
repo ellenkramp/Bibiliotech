@@ -1,7 +1,7 @@
 
 CREATE TABLE users(
     id UUID PRIMARY KEY,
-    username TEXT NOT NUll,
+    username TEXT NOT NUll UNIQUE,
     password BYTEA NOT NULL
 );
 
@@ -26,7 +26,7 @@ CREATE TABLE library(
 CREATE TABLE user_books(
     book_id UUID NOT NULL REFERENCES books (id) ,
     owner UUID REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    avaible_to_lend BOOLEAN NOT NULL
+    available_to_lend BOOLEAN NOT NULL
 );
 
 CREATE TABLE borrowed_books(
