@@ -134,7 +134,7 @@ let login = (request) => {
                     Buffer.from(query["password"]),passBuffer);
                 if (pass) {
                     data["response"] = jwt.sign(query["id"],
-                    process.env.JWT_SECRET, {expiresIn:"7d"});
+                        process.env.JWT_SECRET, {expiresIn:"7d"});
                     resolve(data);
                 }
                 else {
@@ -228,7 +228,7 @@ let server = http.createServer((request, response) => {
 
         else if (server.authedFiles.includes(
             `${userFacingDirectory}${request.url}`)){
-            fs.readFile(`userFacingFiles${request.url}`,"utf8",(err,data) => {
+            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",(err,data) => {
                 response.end(data);
             });
         }
