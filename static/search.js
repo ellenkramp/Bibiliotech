@@ -103,7 +103,8 @@ let populate = (results, container) => {
 }
 
 let addNewBook = (title, author, isbn) => {
-    
+    let createButton = document.querySelector("#createBook");
+    createButton.addEventListener("click", )
 }
 
 let autoFill = (title, author, isbn) => {
