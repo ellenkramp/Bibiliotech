@@ -22,6 +22,20 @@
         <container id="results">
         </container>
     </div>
+    <div id = "newBook" class="visibility">
+        <h2>Don't see what you're looking for? Add a book.</h2>
+            <form id="add">
+                <label for="title">Title</label>
+                <input name="title" type="text" id="newTitle">
+                <label for="author">Author</label>
+                <input name="author" type="text" id="newAuthor">
+                <label for="isbn">ISBN</label>
+                <input name="isbn" type="text" id="newISBN">
+            </form>
+            <button name="add" type="submit">Create New Listing</button>
+            <container id="results">
+            </container>
+        </div>
     <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
     <script type="text/javascript" src="search.js"></script>
 </body>

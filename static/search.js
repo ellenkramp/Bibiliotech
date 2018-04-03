@@ -1,15 +1,15 @@
 "Use strict";
+let method = 'addBook';
 const url = 'localhost:3000/api/' + method;
 const address = 'https://www.googleapis.com/books/v1/volumes?q=';
 const key = '&key=AIzaSyAqMcQj6rxs6dXYzTytATx9lz558CHvKCc';
 let container = document.getElementById('results');
+const token = window.localStorage.getItem('token');
 
 (function loadPage() {
     let header = document.querySelector('h1');
     let name; //local host and then call to users with an authorization header
-    let userWelcome = document.createElement('h1');
-    userWelcome.textContent = `Welcome to Your Library, ${name}!`;
-    header.appendChild(userWelcome);
+    header.textContent = `Welcome to Your Library, ${name}!`;
 }());
 
 let query = async (parameters) => {
@@ -38,17 +38,18 @@ let getBookData = (volume) => {
     let identifiers = volume.industryIdentifiers;
     console.log(identifiers);
     let isbn;
-    for (var i=0; i<identifiers.length; i++) {
-        if (identifiers[i].type === "ISBN_13") {
-            isbn = identifiers[i].identifier;
+    if (identifiers) {
+        for (var i=0; i<identifiers.length; i++) {
+            if (identifiers[i].type === "ISBN_13") {
+                isbn = identifiers[i].identifier;
+            }
+            else if (identifiers[i].type === "ISBN_10") {
+                isbn = identifiers[i].identifier;
+            }
+            else {
+                isbn = "none";
+            }
         }
-        else if (identifiers[i].type === "ISBN_10") {
-            isbn = identifiers[i].identifier;
-        }
-        else {
-            isbn = "none";
-        }
-
     };
     let bookData = {
         title: volume.title,
@@ -91,11 +92,27 @@ let populate = (results, container) => {
             container.appendChild(volumeContainer);
             bookDataList.push(bookData);
             clickToAddBook(button, bookDataList);
+            let newBook = document.querySelector('#newBook');
+            newBook.classList.remove('visibility');
     }
 } else {
     container.textContent = "Request not found. Please try again."
 }
   console.log(bookDataList);
+
+}
+
+let addNewBook = (title, author, isbn) => {
+    
+}
+
+let autoFill = (title, author, isbn) => {
+    let newAuthor = document.querySelector('#newAuthor');
+    let newTitle = document.querySelector('#newTitle');
+    let newISBN = document.querySelector('#newISBN');
+    newAuthor.setAttribute("value", author);
+    newTitle.setAttribute("value", title);
+    newISBN.setAttribute("value", isbn);
 }
 
 let clickToAddBook = async (addButton, bookDataList) => {
@@ -103,17 +120,23 @@ let clickToAddBook = async (addButton, bookDataList) => {
         let buttonId = addButton.id;
         let thisBooksData = bookDataList[buttonId];
         console.log(thisBooksData);
+        let myHeaders = new Headers();
         fetch(url, {
             method: 'POST',
             body: JSON.stringify(thisBooksData),
             headers: new Headers({
-                'Content-Type': 'application/json',
-                Authorization: Basic token
+                Authorization: token
             })
-        }).then(res => res.json())
+        })
+        .then(res => res.json())
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Sucess:', response));
     });
+}
+
+let replaceSpaces = (string) => {
+    let newString = string.replace(/ /g, "+");
+    return newString;
 }
 
 let searchFunction = () => {
@@ -123,10 +146,15 @@ let searchFunction = () => {
         let title = document.getElementById('intitle:');
         let author = document.getElementById('inauthor:');
         let isbn = document.getElementById('isbn:');
-        let parameters = 'intitle:'+title.value.toString() + 'inauthor:' + author.value.toString() 
-            + 'isbn:' + isbn.value.toString();
+        let titleValue = title.value.toString();
+        let authorValue = author.value.toString();
+        let isbnValue = isbn.value.toString();
+        let parameters = 'intitle:'+ replaceSpaces(titleValue) 
+                + '&inauthor:' + replaceSpaces(authorValue) 
+                + '&isbn:' + replaceSpaces(isbnValue);
         console.log(parameters);
         query(parameters);
+        autoFill(titleValue, authorValue, isbnValue);
         form.reset();
         let container = document.getElementById('results');
         while (container.lastChild) { 
