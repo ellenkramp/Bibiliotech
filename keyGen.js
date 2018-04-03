@@ -6,7 +6,7 @@ crypto.randomBytes(60,(err,buffer) => {
     if (err) {
         throw(err);
     }
-    fs.writeFile("newkey.txt",buffer.toString("hex"),(err) => {
+    fs.writeFile(".env",`JWT_SECRET = ${buffer.toString("hex")}`,(err) => {
         if (err){
             throw(err);
         }
