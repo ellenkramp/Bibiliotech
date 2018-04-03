@@ -1,25 +1,29 @@
 const LoginUrl = `${window.location.origin}/api/login`;
-let token = "b6489e33f8584e82a3019157e6cea2ac5bad10633b209745a0da34887477aa317a210375f9c91e7736220d165c562a52248018116d2b78ca640a2279";
-let logIn = (event) => {
-    event.preventDefault();
+let token = "";
+let logIn = () => {
     let userName = document.getElementById("username");
     let passWord = document.getElementById("password");
     let userNameValue = userName.value;
     let passWordValue = passWord.value;
-    let logInObject = {userNameValue: passWordValue};
+    let logInObject = {username: userNameValue,
+                        password: passWordValue};
     fetch(LoginUrl, {
         method: "POST",
         body: JSON.stringify(logInObject),
-        headers: new Headers({
-            Authorization: token
-        })
     })
         .then(res => res.json())
         .catch(error => console.error("Error:", error))
-        .then(response => console.log("Sucess:", response));
+        .then(response => {
+            localStorage.setItem("token", response);
+            console.log("Success:", response);
+        });
+            
 };
 
 (function loadPage() {
-    let loginButton = document.getElementById("loginButton");
-    loginButton.addEventListener("submit", logIn(event));
-});
+    let loginForm = document.getElementById("loginForm");
+    loginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        logIn(event);
+    });
+})();
