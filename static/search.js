@@ -41,7 +41,14 @@ let getBookData = (volume) => {
     if (identifiers) {
         for (var i=0; i<identifiers.length; i++) {
             if (identifiers[i].type === "ISBN_13") {
-                isbn = identifiers[i].identifier;      }
+                isbn = identifiers[i].identifier;
+            }
+            else if (identifiers[i].type === "ISBN_10") {
+                isbn = identifiers[i].identifier;
+            }
+            else {
+                isbn = "none";
+            }
         }
     };
     let bookData = {
