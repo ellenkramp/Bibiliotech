@@ -1,6 +1,7 @@
-const LoginUrl = "localhost:3000/api/login";
+const LoginUrl = `${window.location.origin}/api/login`;
 let token = "b6489e33f8584e82a3019157e6cea2ac5bad10633b209745a0da34887477aa317a210375f9c91e7736220d165c562a52248018116d2b78ca640a2279";
-let logIn = () => {
+let logIn = (event) => {
+    event.preventDefault();
     let userName = document.getElementById("username");
     let passWord = document.getElementById("password");
     let userNameValue = userName.value;
@@ -20,5 +21,5 @@ let logIn = () => {
 
 (function loadPage() {
     let loginButton = document.getElementById("loginButton");
-    loginButton.addEventListener("click", logIn());
-}());
+    loginButton.addEventListener("submit", logIn(event));
+});
