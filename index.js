@@ -106,43 +106,34 @@ let login = async (request,serverResponse, body) => {
         throw response;
     }
 };
-let user = (request) => {
-    return new Promise( (resolve, reject) => {
-        let response = {};
-        response["response"] = {};
-        jwt.verify(token, process.env.JWT_SECRET,
-            (err, loginObject) => {
-                if (err) {
-                    response["statusCode"] = 401;
-                    response["message"] = "Login failed";
-                    reject(response);
-                }
-                else {
-                    let userID = loginObject["id"];
-                    LDB.query("SELECT username FROM users WHERE id = ${userID}",
-                        {userID:userID})
-                        .then( (data) => {
-                            response["response"]["username"] = data["username"];
-                        }).catch( () => {
-                            response["statusCode"] = 404;
-                            response["message"] = `User: ${userID} not found.`;
-                        });
-                    LDB.query("SELECT users.username, user_books.avaible_to_lend,"+
-                " books.isbn, books.asin, books.title, books.author,"+
-                " books.publicationDate, books.thumbnail, books.cover,"+
-                " books.publisher, books.format, books.id AS book_id FROM users"+
-                " JOIN user_books ON users.id = user_books.owner JOIN books on"+
-                " user_books.book_id = books.id WHERE users.id = $1",userID)
-                        .then( (data) => {
-                            response["response"]["books"] = data;
-                        }).catch( () => {
-                            response["statusCode"] = 500;
-                            reject(response);
-                        });
-                }
-            });
+let user = async (request) => {
+    let response = {};
+    response["response"] = {};
+    let loginObject = jwt.verify(global.token, process.env.JWT_SECRET)
+    let userID = loginObject["id"];
+    let data = await LDB.one("SELECT username FROM users WHERE id = ${userID}",
+        {userID:userID}).catch( () => {
+        response["statusCode"] = 404;
+        response["message"] = `User: ${userID} not found.`;
+        throw response;
     });
-};
+    console.log("Got username");
+    response["response"]["username"] = data["username"];
+
+    let books = await LDB.query("SELECT users.username,"+
+    " user_books.available_to_lend, books.isbn, books.asin,"+
+    " books.title, books.author, books.publicationDate,"+
+    " books.thumbnail, books.cover, books.publisher,"+
+    " books.format, books.id AS book_id FROM users"+
+" JOIN user_books ON users.id = user_books.owner JOIN books on"+
+" user_books.book_id = books.id WHERE users.id = $1",userID).catch( () => {
+        response["statusCode"] = 500;
+        throw response;
+    });
+    console.log("Got books");
+    response["response"]["books"] = books;
+    return response;
+}
 
 let receiveBody = (request) => {
     return new Promise ( (resolve, reject) => {
