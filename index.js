@@ -204,7 +204,6 @@ let newBook = async (request) => {
             throw {statusCode:500};
         }
         else{
-            console.log("else");
             if (body["ISBN"]) {
                 let {id:newId} = await LDB.one("SELECT id FROM books WHERE isbn = $1",
                     body["ISBN"]);
