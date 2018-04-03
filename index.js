@@ -177,8 +177,8 @@ let verifyPasword = (username, password) => {
             err.statusCode = 501;
             reject(err);
         }).then( (data) => {
-            return [sodium.crypto_pwhash_str_verify(Buffer.from(data["password"]),
-                passBuffer),data["id"]];
+            return [sodium.crypto_pwhash_str_verify(
+                Buffer.from(data["password"]),passBuffer),data["id"]];
         }));
     });
 };
@@ -271,9 +271,10 @@ let server = http.createServer((request, response) => {
 
         else if (server.authedFiles.includes(
             `${userFacingDirectory}${request.url}`)){
-            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",(err,data) => {
-                response.end(data);
-            });
+            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",
+                (err,data) => {
+                    response.end(data);
+                });
         }
 
         else {
