@@ -14,10 +14,10 @@ let logIn = () => {
         .then(res => res.json())
         .catch(error => console.error("Error:", error))
         .then(response => {
-            localStorage.setItem("token", response);
+            localStorage.setItem("token", response.toString());
             console.log("Success:", response);
         });
-            
+
 };
 
 (function loadPage() {
