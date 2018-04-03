@@ -13,8 +13,8 @@ require("dotenv").config();
 const dbConfig ={
     host:"localhost",
     port:5432,
-    database: "biblotech",
-    user:"terryp"
+    database: "bibliotech",
+    user:"ellenkramp"
 };
 const pg = require("pg-promise")();
 const LDB = pg(dbConfig);
@@ -74,7 +74,7 @@ let createAccount = (request) => {
             id:id
         });
         LDB.none(query).then( () => {
-            resolve(login(request,NULL,body));
+            resolve(login(request, undefined, body));
         }).catch( (err) => {
             err.statusCode = 501;
             reject(err);
@@ -84,11 +84,13 @@ let createAccount = (request) => {
 
 
 let login = async (request,serverResponse, body) => {
+    console.log(body);
     if (!body) {
         body = await receiveBody(request);
     }
     let password = body["password"];
     let username =  body["username"];
+    console.dir(body);
     let data = await verifyPasword(username, password);
     let response = {};
     let pass = data[0];
@@ -250,10 +252,13 @@ let server = http.createServer((request, response) => {
                 .split("/");
             let [parameter,query] = test;
             parameter = parameter ? parameter : undefined;
+            console.log(query)
             router[request.method][parameter](request, response,query).then(
                 (data) => {
                     response.end(JSON.stringify(data["response"]));})
                 .catch((error) =>{
+                    error.statusCode = error.statusCode ? error.statusCode : 500;
+                    console.dir(error);
                     response.statusCode = error.statusCode;
                     response.end(error.message);
                 });
