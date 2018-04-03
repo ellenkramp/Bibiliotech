@@ -24,6 +24,7 @@ const landingPage = "static/index.html";
 const userFacingDirectory = "static";
 const rootAPIUrl = "/api";
 
+let token;
 
 let populateAuthedFiles = (authedFiles = [],
     startingPath=`${userFacingDirectory}/`) => {
@@ -74,7 +75,7 @@ let createAccount = (request) => {
             id:id
         });
         LDB.none(query).then( () => {
-            resolve(login(request,body));
+            resolve(login(request,NULL,body));
         }).catch( (err) => {
             err.statusCode = 501;
             reject(err);
@@ -83,44 +84,43 @@ let createAccount = (request) => {
 };
 
 
-let login = (request, body) => {
-    return new Promise( async (resolve, reject) => {
-        if (!body) {
-            body = await receiveBody(request);
-        }
-        let password = body["password"];
-        let username =  body["username"];
-        verifyPasword(username, password).then( (data) => {
-            let response = {};
-            let pass = data[0];
-            if (pass) {
-                createToken(data[1]).then( (token) => {
-                    response["response"] = token;
-                    resolve(response);
-                });
-            }
-            else {
-                response["statusCode"] = 401;
-                response["message"] = "Login Failed";
-                reject(response);
-            }
-        });
-    });
+let login = async (request,serverResponse, body) => {
+    if (!body) {
+        body = await receiveBody(request);
+    }
+    let password = body["password"];
+    let username =  body["username"];
+    console.log(body);
+    let data = await verifyPasword(username, password);
+    let response = {};
+    let pass = data[0];
+    if (pass) {
+        let token = await createToken(data[1]);
+        response["response"] = token;
+        global.token = token;
+        return response;
+    }
+    else {
+        response["statusCode"] = 401;
+        response["message"] = "Login Failed";
+        throw response;
+    }
 };
 let user = (request) => {
     return new Promise( (resolve, reject) => {
         let response = {};
         response["response"] = {};
-        jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
+        jwt.verify(token, process.env.JWT_SECRET,
             (err, loginObject) => {
-                let userID = loginObject["id"];
                 if (err) {
                     response["statusCode"] = 401;
                     response["message"] = "Login failed";
                     reject(response);
                 }
                 else {
-                    LDB.query("SELECT username FROM users WHERE id = userID")
+                    let userID = loginObject["id"];
+                    LDB.query("SELECT username FROM users WHERE id = ${userID}",
+                        {userID:userID})
                         .then( (data) => {
                             response["response"]["username"] = data["username"];
                         }).catch( () => {
@@ -167,7 +167,6 @@ let receiveBody = (request) => {
 let verifyPasword = (username, password) => {
     return new Promise ( (resolve, reject) => {
         let passBuffer = Buffer.from(password);
-        console.log("Getting user information");
         resolve(LDB.one("SELECT password, id FROM ${table:name}"+
         " WHERE ${comparisonColumn:name} = ${target} ",
         {column:"password",
@@ -177,8 +176,8 @@ let verifyPasword = (username, password) => {
             err.statusCode = 501;
             reject(err);
         }).then( (data) => {
-            return [sodium.crypto_pwhash_str_verify(Buffer.from(data["password"]),
-                passBuffer),data["id"]];
+            return [sodium.crypto_pwhash_str_verify(
+                Buffer.from(data["password"]),passBuffer),data["id"]];
         }));
     });
 };
@@ -248,7 +247,9 @@ let server = http.createServer((request, response) => {
         const router = {"POST":
         {"login":login,
             "register":createAccount,
-            "newBook":newBook}
+            "newBook":newBook},
+        "GET":
+            {"user":user}
         };
 
         if (request.url === "/"){
@@ -258,9 +259,11 @@ let server = http.createServer((request, response) => {
         }
 
         else if (request.url.startsWith(rootAPIUrl)) {
-            let parameter = request.url.replace(rootAPIUrl, "").replace("/","");
+            let test = request.url.replace(rootAPIUrl, "").replace(/^\/+/g, "")
+                .split("/");
+            let [parameter,query] = test;
             parameter = parameter ? parameter : undefined;
-            router[request.method][parameter](request, response).then(
+            router[request.method][parameter](request, response,query).then(
                 (data) => {
                     response.end(JSON.stringify(data["response"]));})
                 .catch((error) =>{
@@ -271,9 +274,10 @@ let server = http.createServer((request, response) => {
 
         else if (server.authedFiles.includes(
             `${userFacingDirectory}${request.url}`)){
-            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",(err,data) => {
-                response.end(data);
-            });
+            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",
+                (err,data) => {
+                    response.end(data);
+                });
         }
 
         else {
