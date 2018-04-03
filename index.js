@@ -159,6 +159,7 @@ let receiveBody = (request) => {
                 error.message = error;
                 reject(error);
             }
+
         });
     });
 };
@@ -270,7 +271,7 @@ let server = http.createServer((request, response) => {
 
         else if (server.authedFiles.includes(
             `${userFacingDirectory}${request.url}`)){
-            fs.readFile(`userFacingFiles${request.url}`,"utf8",(err,data) => {
+            fs.readFile(`${userFacingDirectory}${request.url}`,"utf8",(err,data) => {
                 response.end(data);
             });
         }
