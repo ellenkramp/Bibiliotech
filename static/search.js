@@ -63,7 +63,6 @@ let getBookData = (volume) => {
 };
 
 let populate = (results, container) => {
-    let bookDataList = [];
     if (results) {
         for (var i=0; i<results.length; i++) {
             let volume = results[i].volumeInfo;
@@ -90,15 +89,14 @@ let populate = (results, container) => {
             volumeContainer.appendChild(img);
             volumeContainer.appendChild(button);
             container.appendChild(volumeContainer);
-            bookDataList.push(bookData);
-            clickToAddBook(button, bookDataList);
+            clickToAddBook(button, bookData);
             let newBook = document.querySelector('#newBook');
             newBook.classList.remove('visibility');
     }
 } else {
     container.textContent = "Request not found. Please try again."
 }
-  console.log(bookDataList);
+  console.log(bookData);
 
 }
 
@@ -116,15 +114,14 @@ let autoFill = (title, author, isbn) => {
     newISBN.setAttribute("value", isbn);
 }
 
-let clickToAddBook = async (addButton, bookDataList) => {
+let clickToAddBook = async (addButton, bookData) => {
     addButton.addEventListener('click', () => {
         let buttonId = addButton.id;
-        let thisBooksData = bookDataList[buttonId];
-        console.log(thisBooksData);
+        console.log(bookData);
         let myHeaders = new Headers();
         fetch(url, {
             method: 'POST',
-            body: JSON.stringify(thisBooksData),
+            body: JSON.stringify(bookData),
             headers: new Headers({
                 Authorization: token
             })
