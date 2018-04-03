@@ -60,7 +60,7 @@ let createAccount = (request) => {
     return new Promise( async (resolve, reject) => {
         let body = await receiveBody(request);
         let username = body["username"];
-        let password = body["password"];;
+        let password = body["password"];
         let passBuffer = Buffer.from(password);
         let id = uuidv4();
         let hashed = sodium.crypto_pwhash_str(passBuffer,
