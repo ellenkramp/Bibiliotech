@@ -24,7 +24,6 @@ const landingPage = "static/index.html";
 const userFacingDirectory = "static";
 const rootAPIUrl = "/api";
 
-let token;
 
 let populateAuthedFiles = (authedFiles = [],
     startingPath=`${userFacingDirectory}/`) => {
@@ -90,14 +89,12 @@ let login = async (request,serverResponse, body) => {
     }
     let password = body["password"];
     let username =  body["username"];
-    console.log(body);
     let data = await verifyPasword(username, password);
     let response = {};
     let pass = data[0];
     if (pass) {
         let token = await createToken(data[1]);
         response["response"] = token;
-        global.token = token;
         return response;
     }
     else {
@@ -109,7 +106,8 @@ let login = async (request,serverResponse, body) => {
 let user = async (request) => {
     let response = {};
     response["response"] = {};
-    let loginObject = jwt.verify(global.token, process.env.JWT_SECRET)
+    let loginObject = jwt.verify(request.headers.authorization,
+        process.env.JWT_SECRET);
     let userID = loginObject["id"];
     let data = await LDB.one("SELECT username FROM users WHERE id = ${userID}",
         {userID:userID}).catch( () => {
@@ -117,7 +115,6 @@ let user = async (request) => {
         response["message"] = `User: ${userID} not found.`;
         throw response;
     });
-    console.log("Got username");
     response["response"]["username"] = data["username"];
 
     let books = await LDB.query("SELECT users.username,"+
@@ -130,10 +127,9 @@ let user = async (request) => {
         response["statusCode"] = 500;
         throw response;
     });
-    console.log("Got books");
     response["response"]["books"] = books;
     return response;
-}
+};
 
 let receiveBody = (request) => {
     return new Promise ( (resolve, reject) => {
