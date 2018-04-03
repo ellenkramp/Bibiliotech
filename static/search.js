@@ -1,6 +1,6 @@
 "Use strict";
-let method = 'addBook';
-const url = 'localhost:3000/api/' + method;
+let method = 'newBook';
+const url = `${window.location.origin}/api/` + method;
 const address = 'https://www.googleapis.com/books/v1/volumes?q=';
 const key = '&key=AIzaSyAqMcQj6rxs6dXYzTytATx9lz558CHvKCc';
 let container = document.getElementById('results');
@@ -30,7 +30,7 @@ let query = async (parameters) => {
 let getBookData = (volume) => {
     let thumbnailSrc;
     let defaultImg = 'http://nobacks.com/wp-content/uploads/2014/11/Book-2.png';
-    thumbnailSrc = volume["imageLinks"].smallThumbnail; 
+    thumbnailSrc = volume["imageLinks"].smallThumbnail;
     console.log(thumbnailSrc);
     if (thumbnailSrc == false) {
         thumbnailSrc = defaultImg;
@@ -123,7 +123,7 @@ let clickToAddBook = async (addButton, bookData) => {
             method: 'POST',
             body: JSON.stringify(bookData),
             headers: new Headers({
-                Authorization: token
+                authorization: token
             })
         })
         .then(res => res.json())
@@ -147,16 +147,16 @@ let searchFunction = () => {
         let titleValue = title.value.toString();
         let authorValue = author.value.toString();
         let isbnValue = isbn.value.toString();
-        let parameters = 'intitle:'+ replaceSpaces(titleValue) 
-                + '&inauthor:' + replaceSpaces(authorValue) 
+        let parameters = 'intitle:'+ replaceSpaces(titleValue)
+                + '&inauthor:' + replaceSpaces(authorValue)
                 + '&isbn:' + replaceSpaces(isbnValue);
         console.log(parameters);
         query(parameters);
         autoFill(titleValue, authorValue, isbnValue);
         form.reset();
         let container = document.getElementById('results');
-        while (container.lastChild) { 
-            container.removeChild(container.lastChild) 
+        while (container.lastChild) {
+            container.removeChild(container.lastChild)
         };
     });
 
