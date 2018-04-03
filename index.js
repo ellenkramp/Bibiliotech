@@ -150,7 +150,7 @@ let user = (request) => {
         response["response"] = {};
         jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
             (err, loginObject) => {
-                userID = loginObject[id];
+                let userID = loginObject[id];
                 if (err) {
                     response["statusCode"] = 401;
                     response["message"] = "Login failed";
