@@ -208,3 +208,8 @@ h3 {
 
 article>p {
   margin-top: 1rem;
+}
+
+.visibility {
+  visibility: hidden;
+}
