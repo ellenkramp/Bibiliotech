@@ -4,9 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Your Page</title>
-    <link rel="stylesheet" href="./css/main.css" type="text/css">
+    <title>title</title>
+    <link rel="stylesheet" href="user.css" type="text/css">
+    <link rel="stylesheet" href="./css/main.css" type="text/css"?
 </head>
+<body id="home">
+    <h1 id="welcome"></h1>
+    <div id = "bookSearch">
+        <form id="search">
+            <label for="intitle:">Title</label>
+            <input name="name" type="text" id="intitle:">
+            <label for="inauthor:">Author</label>
+            <input name="author" type="text" id="inauthor:">
+            <label for="isbn:">ISBN</label>
+            <input name="isbn" type="text" id="isbn:">
+        </form>
+        <button name="search" type="submit">Search</button>
+        <container id="results">
+        </container>
+    </div>
+    <div id = "newBook" class="visibility">
+        <h2>Don't see what you're looking for? Add a book.</h2>
+            <form id="add">
+                <label for="title">Title</label>
+                <input name="title" type="text" id="newTitle">
+                <label for="author">Author</label>
+                <input name="author" type="text" id="newAuthor">
+                <label for="isbn">ISBN</label>
+                <input name="isbn" type="text" id="newISBN">
+            </form>
+            <button name="add" id="createBook" type="submit">Create New Listing</button>
+            <container id="results">
+            </container>
+        </div>
+    <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
+    <script type="text/javascript" src="search.js"></script>
+</body>
 
 <body>
 <div id="nav-background">
