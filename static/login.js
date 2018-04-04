@@ -1,5 +1,6 @@
 const LoginUrl = `${window.location.origin}/api/login`;
 const regURL = `${window.location.origin}/api/register`;
+const userPage = 
 let token = "";
 let logIn = () => {
     let userName = document.getElementById("username");
@@ -12,17 +13,13 @@ let logIn = () => {
         method: "POST",
         body: JSON.stringify(logInObject),
     })
-        .then((res) => {
-            console.log(res);
-            return res.json();
-        })
+        .then(res => res.json())
         .catch(error => console.error("Error:", error))
         .then(response => {
-            localStorage.setItem("token", response.toString());
-            console.log("Success:", response.toString());
-            window.location = `${window.location.origin}/user.html`
+            localStorage.setItem("token", response.toString);
+            console.log("Success:", response.toString);
         });
-
+            
 };
 
 let regUser = () => {
@@ -41,11 +38,9 @@ let regUser = () => {
     .then(res => res.json())
     .catch(error => console.error ("Error:", error))
     .then(response => {
-        localStorage.setItem("token", response.toString());
-        console.log("Registered", response.toString())
-        window.location = `${window.location.origin}/user.html`;
+        localStorage.setItem("token", response.toString);
+        console.log("Registered", response.toString)
     });
-}
 
 (function loadPage() {
     let loginForm = document.getElementById("loginForm");
@@ -53,4 +48,11 @@ let regUser = () => {
         event.preventDefault();
         logIn(event);
     });
-})();
+function submitReg() {
+    let regForm = document.getElementByID("regbutton");
+    regform.addEventListener("submit", (event) => {
+        event.preventDefault();
+        regUser(event);
+    })
+}
+})()
