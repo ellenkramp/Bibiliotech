@@ -53,4 +53,10 @@ let regUser = () => {
         event.preventDefault();
         logIn(event);
     });
+    function submitReg() {
+        let regForm = document.getElementByID("regbutton");
+        regform.addEventListener("submit", (event) => {
+            event.preventDefault();
+            regUser(event);
+        });
 })();
