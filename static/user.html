@@ -8,8 +8,16 @@
     <link rel="stylesheet" href="main.css" type="text/css">
 </head>
 <body id="home">
-    <h1 id="welcome"></h1>
-    <div id = "bookSearch">
+    <div class="welcome">
+        <h1 id="welcome"></h1>
+    </div>
+    <div class="initial-select">
+        <button id="libraryButton">View Library</button>
+        <button id="userAdd">Add Book</button>
+        <button id="accountHome">Account Home</button>
+    </div>
+    <div id="add-book">
+    <div id = "bookSearch" class="hidden">
         <form id="search">
             <label for="intitle:">Title</label>
             <input name="name" type="text" id="intitle:">
@@ -22,7 +30,7 @@
         <container id="results">
         </container>
     </div>
-    <div id = "newBook" class="visibility">
+    <div id = "newBook" class="hidden">
         <h2>Don't see what you're looking for? Add a book.</h2>
             <form id="add">
                 <label for="title">Title</label>
@@ -38,9 +46,6 @@
         </div>
     <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
     <script type="text/javascript" src="search.js"></script>
-</body>
-
-<body>
 <div id="nav-background">
     <div id="nav-container">
         <header id="nav-header">
@@ -67,12 +72,21 @@
         </nav>
     </div>
 </div>
-<h1 class = "favorites">Favorite Authors:</h1>
-<p class = "textbox">Agatha Christie, William Shakespeare</p>
-<h1 class ="favorites">Favorite Genres:</h1>
-<p class = "textbox">Mystery, Romance, Children's</p>
-<h1 class = "favorites">Other Comments</h1>
-<p class = "textbox">Lorem ipsum</p>
+</div>
+<div id="library" class="hidden">
+    <h1 class = "my-library">Library</h1>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+</div>
+
 <footer class="footer">Hot Machine Ducks ©2018. Licensed under the Apache License, Version 2.0.</footer>
 <script src="./js/script.js"></script>
 </body>

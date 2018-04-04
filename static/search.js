@@ -6,10 +6,38 @@ const key = '&key=AIzaSyAqMcQj6rxs6dXYzTytATx9lz558CHvKCc';
 let container = document.getElementById('results');
 const token = window.localStorage.getItem('token');
 
+(function loadButtons() {
+    let libraryButton = document.getElementById("libraryButton");
+    let myLibrary = document.getElementById("library");
+    let userAdd = document.getElementById("userAdd");
+    let home = document.getElementById("accountHome");
+    let bookSearch = document.getElementById("bookSearch");
+    libraryButton.addEventListener("click", () => {
+        myLibrary.classList.remove("hidden");
+    });
+    userAdd.addEventListener("click", () => {
+        bookSearch.classList.remove("hidden");
+    });
+    home.addEventListener("click", () => {
+        window.location.href = "/user.html";
+    });
+})
+
 (function loadPage() {
     let header = document.querySelector('h1');
-    let name; //local host and then call to users with an authorization header
-    header.textContent = `Welcome to Your Library, ${name}!`;
+    let url = `${window.location.origin}/api/users`;
+    let username = "Terry";
+    fetch(url, {
+        method: "GET",
+        headers: new Headers({
+            authorization: token
+        })
+    })
+        .catch(error => console.error("Error:", error))
+        .then(response => {
+            console.log("Success:", JSON.stringify(response));
+        }); //local host and then call to users with an authorization header
+    header.textContent = `Welcome to Your Library, ${username}!`;
 }());
 
 let query = async (parameters) => {
@@ -51,6 +79,7 @@ let getBookData = (volume) => {
             }
         }
     };
+
     let bookData = {
         title: volume.title,
         author: volume.authors,
@@ -116,6 +145,7 @@ let autoFill = (title, author, isbn) => {
 
 let clickToAddBook = (addButton, bookData) => {
     addButton.addEventListener("click", async () => {
+        console.trace('trace');
         let buttonId = addButton.id;
         let myHeaders = new Headers();
         await fetch(url, {
@@ -125,9 +155,10 @@ let clickToAddBook = (addButton, bookData) => {
                 authorization: token
             })
         })
-        // .then(res => res.json())
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Sucess:', response));
+        addButton.classList.add("added");
+        addButton.textContent="Added!";
     });
 }
 
