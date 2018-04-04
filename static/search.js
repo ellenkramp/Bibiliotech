@@ -92,11 +92,11 @@ let populate = (results, container) => {
             clickToAddBook(button, bookData);
             let newBook = document.querySelector('#newBook');
             newBook.classList.remove('visibility');
+            console.log(bookData);
     }
 } else {
     container.textContent = "Request not found. Please try again."
 }
-  console.log(bookData);
 
 }
 
@@ -114,19 +114,18 @@ let autoFill = (title, author, isbn) => {
     newISBN.setAttribute("value", isbn);
 }
 
-let clickToAddBook = async (addButton, bookData) => {
-    addButton.addEventListener('click', () => {
+let clickToAddBook = (addButton, bookData) => {
+    addButton.addEventListener("click", async () => {
         let buttonId = addButton.id;
-        console.log(bookData);
         let myHeaders = new Headers();
-        fetch(url, {
+        await fetch(url, {
             method: 'POST',
             body: JSON.stringify(bookData),
             headers: new Headers({
                 authorization: token
             })
         })
-        .then(res => res.json())
+        // .then(res => res.json())
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Sucess:', response));
     });
