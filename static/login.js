@@ -12,13 +12,16 @@ let logIn = () => {
         method: "POST",
         body: JSON.stringify(logInObject),
     })
-        .then(res => res.json())
+        .then((res) => {
+            console.log(res);
+            return res.json();
+        })
         .catch(error => console.error("Error:", error))
         .then(response => {
-            localStorage.setItem("token", response.toString);
-            console.log("Success:", response.toString);
+            localStorage.setItem("token", response.toString());
+            console.log("Success:", response.toString());
         });
-            
+
 };
 
 let regUser = () => {
@@ -40,6 +43,7 @@ let regUser = () => {
         localStorage.setItem("token", response.toString);
         console.log("Registered", response.toString)
     });
+}
 
 (function loadPage() {
     let loginForm = document.getElementById("loginForm");
