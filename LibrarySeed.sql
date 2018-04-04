@@ -10,7 +10,7 @@ CREATE TABLE books(
     asin VARCHAR(10) UNIQUE,
     title TEXT NOT NULL,
     author TEXT,
-    publicationDate DATE,
+    publicationDate TEXT,
     thumbnail VARCHAR(2000),
     cover VARCHAR(2000),
     publisher TEXT,

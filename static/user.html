@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>title</title>
+    <link rel="stylesheet" href="/main.css" type="text/css">
+</head>
+<body id="home">
+    <div class="welcome">
+        <h1 id="welcome"></h1>
+    </div>
+    <div class="initial-select">
+        <button id="libraryButton">View Library</button>
+        <button id="userAdd">Add Book</button>
+        <button id="accountHome">Account Home</button>
+    </div>
+    <div id="add-book">
+    <div id = "bookSearch" class="hidden">
+        <form id="search">
+            <label for="intitle:">Title</label>
+            <input name="name" type="text" id="intitle:">
+            <label for="inauthor:">Author</label>
+            <input name="author" type="text" id="inauthor:">
+            <label for="isbn:">ISBN</label>
+            <input name="isbn" type="text" id="isbn:">
+        </form>
+        <button name="search" type="submit">Search</button>
+        <container id="results">
+        </container>
+    </div>
+    <div id = "newBook" class="hidden">
+        <h2>Don't see what you're looking for? Add a book.</h2>
+            <form id="add">
+                <label for="title">Title</label>
+                <input name="title" type="text" id="newTitle">
+                <label for="author">Author</label>
+                <input name="author" type="text" id="newAuthor">
+                <label for="isbn">ISBN</label>
+                <input name="isbn" type="text" id="newISBN">
+            </form>
+            <button name="add" id="createBook" type="submit">Create New Listing</button>
+            <container id="results">
+            </container>
+        </div>
+    <script type="text/javascript" src="https://www.google.com/books/jsapi.js"></script>
+    <script type="text/javascript" src="/search.js"></script>
+<div id="nav-background">
+    <div id="nav-container">
+        <header id="nav-header">
+            <h1>
+                <a href="#" id="nav-logo">Bibliotech</a>
+            </h1>
+            <div id="nav-menu-button">MENU</div>
+        </header>
+        <nav>
+            <ul class="nav-ul hide-ul">
+                <li>
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li>
+                    <a class="nav-link" href="user.html">Share</a>
+                </li>
+                <li>
+                    <a class="nav-link" href="login.html">Login</a>
+                </li>
+                <li>
+                    <a class="nav-link" href="about.html">About</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</div>
+<div id="library" class="hidden">
+    <h1 class = "my-library">Library</h1>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+    <p name = "title">Harry Potter and the Sorcerer's Stone</p>
+    <p name = "author"><span>By: </span>J.K. Rowling</p>
+</div>
+
+<footer class="footer">Hot Machine Ducks ©2018. Licensed under the Apache License, Version 2.0.</footer>
+<script src="/js/script.js"></script>
+</body>
+</html>

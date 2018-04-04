@@ -1,15 +1,43 @@
 "Use strict";
-let method = 'addBook';
+let method = 'newBook';
 const url = `${window.location.origin}/api/` + method;
 const address = 'https://www.googleapis.com/books/v1/volumes?q=';
 const key = '&key=AIzaSyAqMcQj6rxs6dXYzTytATx9lz558CHvKCc';
 let container = document.getElementById('results');
 const token = window.localStorage.getItem('token');
 
+(function loadButtons() {
+    let libraryButton = document.getElementById("libraryButton");
+    let myLibrary = document.getElementById("library");
+    let userAdd = document.getElementById("userAdd");
+    let home = document.getElementById("accountHome");
+    let bookSearch = document.getElementById("bookSearch");
+    libraryButton.addEventListener("click", () => {
+        myLibrary.classList.remove("hidden");
+    });
+    userAdd.addEventListener("click", () => {
+        bookSearch.classList.remove("hidden");
+    });
+    home.addEventListener("click", () => {
+        window.location.href = "/user.html";
+    });
+})
+
 (function loadPage() {
     let header = document.querySelector('h1');
-    let name; //local host and then call to users with an authorization header
-    header.textContent = `Welcome to Your Library, ${name}!`;
+    let url = `${window.location.origin}/api/users`;
+    let username = "Terry";
+    fetch(url, {
+        method: "GET",
+        headers: new Headers({
+            authorization: token
+        })
+    })
+        .catch(error => console.error("Error:", error))
+        .then(response => {
+            console.log("Success:", JSON.stringify(response));
+        }); //local host and then call to users with an authorization header
+    header.textContent = `Welcome to Your Library, ${username}!`;
 }());
 
 let query = async (parameters) => {
@@ -51,6 +79,7 @@ let getBookData = (volume) => {
             }
         }
     };
+
     let bookData = {
         title: volume.title,
         author: volume.authors,
@@ -92,11 +121,11 @@ let populate = (results, container) => {
             clickToAddBook(button, bookData);
             let newBook = document.querySelector('#newBook');
             newBook.classList.remove('visibility');
+            console.log(bookData);
     }
 } else {
     container.textContent = "Request not found. Please try again."
 }
-  console.log(bookData);
 
 }
 
@@ -114,21 +143,22 @@ let autoFill = (title, author, isbn) => {
     newISBN.setAttribute("value", isbn);
 }
 
-let clickToAddBook = async (addButton, bookData) => {
-    addButton.addEventListener('click', () => {
+let clickToAddBook = (addButton, bookData) => {
+    addButton.addEventListener("click", async () => {
+        console.trace('trace');
         let buttonId = addButton.id;
-        console.log(bookData);
         let myHeaders = new Headers();
-        fetch(url, {
+        await fetch(url, {
             method: 'POST',
             body: JSON.stringify(bookData),
             headers: new Headers({
-                Authorization: token
+                authorization: token
             })
         })
-        .then(res => res.json())
         .catch(error => console.error('Error:', error))
         .then(response => console.log('Sucess:', response));
+        addButton.classList.add("added");
+        addButton.textContent="Added!";
     });
 }
 

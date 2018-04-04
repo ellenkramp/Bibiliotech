@@ -9,11 +9,10 @@ const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
 const dbConfig ={
     host:"localhost",
     port:5432,
-    database: "bibliotech",
+    database: process.env.DB,
     user:process.env.USERNAME
 };
 const pg = require("pg-promise")();
@@ -148,7 +147,6 @@ let receiveBody = (request) => {
                 error.message = error;
                 reject(error);
             }
-
         });
     });
 };
@@ -178,56 +176,68 @@ let createToken  = userId => {
             process.env.JWT_SECRET, {expiresIn:"7d"}));
     });
 };
-let newBook = (request) => {
-    return new Promise( (resolve, reject) => {
-        jwt.verify(request.headers.Authorization, process.env.JWT_SECRET,
-            (err, userID) => {
-                if (err) {
-                    reject({statusCode:401,
-                        response:"Authentication failed"});
-                }
-                let receivedData = "";
-                let data = {};
-                let body;
-                request.on("data",(chunk) => {
-                    receivedData += chunk;
-                });
-                request.on("end", () => {
-                    try {
-                        body = JSON.parse(receivedData);
-                    }
-                    catch (err) {
-                        if (err.name === "SyntaxError") {
-                            err.statusCode = 400;
-                            err.message = "Invaild JSON received";
-                            reject(err);
-                        }
-                    }
-                    body["id"] = uuidv4();
-                    LDB.none("INSERT INTO books(isbn, asin, title, author,"+
-                     "publicationDate, thumbnail, cover, publisher, id,"+
-                     " available_to_lend) values(${ISBN}, ${asin},${title},"+
+let newBook = async (request) => {
+    let userID = await verifyToken(request.headers.authorization);
+    let data = {};
+    let body = await receiveBody(request);
+    let values = ["ISBN", "asin", "title", "author",
+        "publicationDate", "thumbnail", "cover", "publisher",
+        "id"];
+    body["id"] = uuidv4();
+    values.forEach( (value) => {
+        if (!Object.keys(body).includes(value)){
+            body[value] = null;
+        }
+    });
+    console.log(body);
+    try {
+        await LDB.none("INSERT INTO books(isbn, asin, title, author,"+
+                     "publicationDate, thumbnail, cover, publisher, id"+
+                     ") values(${ISBN}, ${asin},${title},"+
                      "${author},${publishedDate},${thumbnail}, ${cover},"+
-                     " ${publisher}, ${id}, ${availableToLend}), ${body}",body)
-                        .then( () => {
-                            data["response"] = body["id"];
-                            resolve(data);
-                        }).catch( (err) => {
-                            if (err.code !== 23505){
-                                reject({statusCode:500});
-                                return;
-                            }
-                        }).finally( () => {
-                            let userBook = { book_id:body["id"],
-                                owner_id:userID};
+                     " ${publisher}, ${id}) ",body);
+        data["response"] = body["id"];
+    }
+    catch(err) {
+        console.trace(err);
+        if (err.code !== "23505"){
+            throw {statusCode:500};
+        }
+        else{
+            if (body["ISBN"]) {
+                let {id:newId} = await LDB.one("SELECT id FROM books WHERE isbn = $1",
+                    body["ISBN"]);
+                body["id"] = newId;
+            } else {
+                throw new Error("no isbn");
+            }
+        }
+    }
+    let userBook = { book_id:body["id"],
+        owner_id:userID,
+        available_to_lend:body["available_to_lend"]};
+    if (!userBook["available_to_lend"]){
+        userBook["available_to_lend"] = false;
+    }
 
-                            LDB.none("INSERT INTO user_books(book_id, owner,"+
-                            " available_to_lend) values(${book_id}, ${owner_id}"+
-                            ", ${available_to_lend})", userBook);
-                        });
-                });
+    await LDB.none("INSERT INTO user_books(book_id, owner,"+
+            " available_to_lend) values(${book_id}, ${owner_id}"+
+            ", ${available_to_lend})", userBook);
+    return {"response":
+            body["id"]};
+};
+
+let verifyToken = (token) => {
+    return new Promise( (resolve, reject) => {
+        jwt.verify(token, process.env.JWT_SECRET,
+            (err, data) => {
+                if (err) {
+                    reject(err);
+                }
+                else{
+                    resolve(data["id"]);
+                }
             });
-
     });
 };
 
@@ -236,7 +246,7 @@ let server = http.createServer((request, response) => {
         const router = {"POST":
         {"login":login,
             "register":createAccount,
-            "addBook":newBook},
+            "newBook":newBook},
         "GET":
             {"user":user}
         };
@@ -253,7 +263,6 @@ let server = http.createServer((request, response) => {
                 console.log(test);
             let [parameter,query] = test;
             parameter = parameter ? parameter : undefined;
-            console.log(query)
             router[request.method][parameter](request, response,query).then(
                 (data) => {
                     response.end(JSON.stringify(data["response"]));})

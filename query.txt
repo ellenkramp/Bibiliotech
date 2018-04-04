@@ -1,0 +1,1 @@
+SELECT users.username, user_books.avaible_to_lend, books.isbn, books.asin, books.title, books.author, books.publicationDate, books.thumbnail, books.cover, books.publisher, books.format, books.id AS book_id FROM users JOIN user_books ON users.id = user_books.owner JOIN books on user_books.book_id = books.id; 
