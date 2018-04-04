@@ -228,4 +228,16 @@ article>p {
 
 .my-library {
   padding: 10px;
+  margin-left: 10%;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+
+}
+
+.thumbnails {
+  display: grid;
+  grid-column-start: 2;
+  grid-column-end: 3;
+  object-fit: cover;
+  margin-left: 10px;
 }

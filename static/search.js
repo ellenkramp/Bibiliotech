@@ -65,7 +65,12 @@ const token = window.localStorage.getItem('token');
             for (var i=0; i<books.length; i++) {
                 let book = books[i];
                 let title = document.createElement('li');
+                let img = document.createElement('img');
+                img.classList.add("thumbnails");
                 title.textContent = book["title"];
+                img.src = book["thumbnail"];
+                img.setAttribute("width", "100px");
+                myLibrary.appendChild(img);
                 myLibrary.appendChild(title);
             }
         });
