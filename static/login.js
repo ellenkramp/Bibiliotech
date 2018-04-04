@@ -26,8 +26,8 @@ let logIn = () => {
 };
 
 let regUser = () => {
-    let newName = document.getElementById("regusername")
-    let newPass = document.getElementById("regpassword")
+    let newName = document.getElementById("regusername");
+    let newPass = document.getElementById("regpassword");
     let newNameValue = newName.value;
     let newPassValue = newPass.value;
     let regObject = {
@@ -38,14 +38,14 @@ let regUser = () => {
         body: JSON.stringify(regObject),
 
     })
-    .then(res => res.json())
-    .catch(error => console.error ("Error:", error))
-    .then(response => {
-        localStorage.setItem("token", response.toString());
-        console.log("Registered", response.toString())
-        window.location = `${window.location.origin}/user.html`;
-    });
-}
+        .then(res => res.json())
+        .catch(error => console.error ("Error:", error))
+        .then(response => {
+            localStorage.setItem("token", response.toString());
+            console.log("Registered", response.toString());
+            window.location = `${window.location.origin}/user.html`;
+        });
+};
 
 (function loadPage() {
     let loginForm = document.getElementById("loginForm");
@@ -53,10 +53,9 @@ let regUser = () => {
         event.preventDefault();
         logIn(event);
     });
-    function submitReg() {
-        let regForm = document.getElementByID("regbutton");
-        regform.addEventListener("submit", (event) => {
-            event.preventDefault();
-            regUser(event);
-        });
+    let regForm = document.getElementById("registerForm");
+    regForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        regUser(event);
+    });
 })();
