@@ -1,4 +1,5 @@
 const LoginUrl = `${window.location.origin}/api/login`;
+const regURL = `${window.location.origin}/api/register`;
 let token = "";
 let logIn = () => {
     let userName = document.getElementById("username");
@@ -14,10 +15,10 @@ let logIn = () => {
         .then(res => res.json())
         .catch(error => console.error("Error:", error))
         .then(response => {
-            localStorage.setItem("token", response.toString());
-            console.log("Success:", response);
+            localStorage.setItem("token", response.toString);
+            console.log("Success:", response.toString);
         });
-
+            
 };
 
 (function loadPage() {
