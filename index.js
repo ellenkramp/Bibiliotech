@@ -95,6 +95,7 @@ let login = async (request,serverResponse, body) => {
     let pass = data[0];
     if (pass) {
         let token = await createToken(data[1]);
+        serverResponse.setHeader("redirect",true);
         response["response"] = token;
         return response;
     }
@@ -107,7 +108,7 @@ let login = async (request,serverResponse, body) => {
 let user = async (request) => {
     let response = {};
     response["response"] = {};
-    let loginObject = jwt.verify(request.headers.authorization,
+    let loginObject = await jwt.verify(request.headers.authorization,
         process.env.JWT_SECRET);
     let userID = loginObject["id"];
     let data = await LDB.one("SELECT username FROM users WHERE id = ${userID}",

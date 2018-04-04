@@ -12,7 +12,10 @@ let logIn = () => {
         method: "POST",
         body: JSON.stringify(logInObject),
     })
-        .then(res => res.json())
+        .then((res) => {
+            console.log(res);
+            return res.json();
+        })
         .catch(error => console.error("Error:", error))
         .then(response => {
             localStorage.setItem("token", response.toString());
@@ -42,6 +45,7 @@ let regUser = () => {
         console.log("Registered", response.toString())
         window.location = `${window.location.origin}/user.html`;
     });
+}
 
 (function loadPage() {
     let loginForm = document.getElementById("loginForm");
