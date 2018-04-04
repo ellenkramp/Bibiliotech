@@ -213,3 +213,15 @@ article>p {
 .visibility {
   visibility: hidden;
 }
+
+.hidden {
+  display: none;
+}
+
+.added {
+  background-color: green;
+}
+
+.initial-select {
+  margin-top: 100px;
+}
