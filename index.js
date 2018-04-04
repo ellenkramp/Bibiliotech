@@ -14,7 +14,7 @@ const dbConfig ={
     host:"localhost",
     port:5432,
     database: "bibliotech",
-    user:"ellenkramp"
+    user:process.env.USERNAME
 };
 const pg = require("pg-promise")();
 const LDB = pg(dbConfig);
@@ -236,7 +236,7 @@ let server = http.createServer((request, response) => {
         const router = {"POST":
         {"login":login,
             "register":createAccount,
-            "newBook":newBook},
+            "addBook":newBook},
         "GET":
             {"user":user}
         };
@@ -250,6 +250,7 @@ let server = http.createServer((request, response) => {
         else if (request.url.startsWith(rootAPIUrl)) {
             let test = request.url.replace(rootAPIUrl, "").replace(/^\/+/g, "")
                 .split("/");
+                console.log(test);
             let [parameter,query] = test;
             parameter = parameter ? parameter : undefined;
             console.log(query)
