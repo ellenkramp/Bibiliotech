@@ -95,7 +95,6 @@ let login = async (request,serverResponse, body) => {
     let pass = data[0];
     if (pass) {
         let token = await createToken(data[1]);
-        serverResponse.setHeader("redirect",true);
         response["response"] = token;
         return response;
     }
