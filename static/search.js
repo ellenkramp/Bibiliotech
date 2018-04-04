@@ -7,25 +7,37 @@ let container = document.getElementById('results');
 const token = window.localStorage.getItem('token');
 
 (function loadButtons() {
+    let url = `${window.location.origin}/api/books`;
     let libraryButton = document.getElementById("libraryButton");
-    let myLibrary = document.getElementById("library");
     let userAdd = document.getElementById("userAdd");
     let home = document.getElementById("accountHome");
     let bookSearch = document.getElementById("bookSearch");
     libraryButton.addEventListener("click", () => {
+        let myLibrary = document.getElementById("library");
         myLibrary.classList.remove("hidden");
-    });
+        fetch(url, {
+            method: "GET",
+            headers: new Headers({
+                authorization: token
+            })
+        })
+            .catch(error => console.error("Error:", error))
+            .then(response => {
+                console.log("Success:", JSON.stringify(response));
+            })
+            }); //local host and then call to users with an authorization header
+    
     userAdd.addEventListener("click", () => {
         bookSearch.classList.remove("hidden");
     });
     home.addEventListener("click", () => {
         window.location.href = "/user.html";
     });
-})
+})();
 
 (function loadPage() {
     let header = document.querySelector('h1');
-    let url = `${window.location.origin}/api/users`;
+    let url = `${window.location.origin}/api/user`;
     let username = "Terry";
     fetch(url, {
         method: "GET",
