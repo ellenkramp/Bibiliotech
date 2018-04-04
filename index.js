@@ -260,6 +260,7 @@ let server = http.createServer((request, response) => {
         else if (request.url.startsWith(rootAPIUrl)) {
             let test = request.url.replace(rootAPIUrl, "").replace(/^\/+/g, "")
                 .split("/");
+                console.log(test);
             let [parameter,query] = test;
             parameter = parameter ? parameter : undefined;
             router[request.method][parameter](request, response,query).then(
