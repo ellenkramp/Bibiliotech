@@ -38,8 +38,9 @@ let regUser = () => {
     .then(res => res.json())
     .catch(error => console.error ("Error:", error))
     .then(response => {
-        localStorage.setItem("token", response.toString);
-        console.log("Registered", response.toString)
+        localStorage.setItem("token", response.toString());
+        console.log("Registered", response.toString())
+        window.location = `${window.location.origin}/user.html`;
     });
 
 (function loadPage() {
