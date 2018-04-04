@@ -47,8 +47,8 @@ let regUser = () => {
         event.preventDefault();
         logIn(event);
     });
-    let regForm = document.getElementByID("loginForm");
-    loginForm.addEventListener("submit", (event) => {
+    let regForm = document.getElementByID("regbutton");
+    regform.addEventListener("submit", (event) => {
         event.preventDefault();
         logIn(event);
     })
