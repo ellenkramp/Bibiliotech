@@ -49,8 +49,21 @@
                         <input type="submit" id="loginButton" value="Login">
                     </div>
                     </form>
+                    <form class="login" id="registerForm">
+                        <input type="hidden" name="redirect" value="/user.html">
+                        <p>Put in desired username and password</p>
+                        <label for="username">Username:</label>
+                        <input type="text" id="regusername" name="username">
+                        <label for="password">Password:</label>
+                        <input type="password" id="regpassword" name="password">
+                        <div id="lower">
+                            <input type="checkbox">
+                            <label for="checkbox">Keep me logged in</label>
+                            <input type="submit" id="loginButton" value="Login">
+                        </div>
+                    </form>
                 <footer class="footer">
-                    Hot Machine Ducks ©2018
+                Hot Machine Ducks ©2018. Licensed under the Apache License, Version 2.0.
                 </footer>
                 <script src="login.js"></script>
                 <script src="./js/script.js"></script>

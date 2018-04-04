@@ -21,6 +21,26 @@ let logIn = () => {
             
 };
 
+let regUser = () => {
+    let newName = document.getElementById("regusername")
+    let newPass = document.getElementById("regpassword")
+    let newNameValue = newName.value;
+    let newPassValue = newPass.value;
+    let regObject = {
+        username: newNameValue,
+        password: newPassValue};
+    fetch(regURL, {
+        method: "POST",
+        body: JSON.stringify(regObject),
+
+    })
+    .then(res => res.json())
+    .catch(error => console.error ("Error:", error))
+    .then(response => {
+        localStorage.setItem("token", response.toString);
+        console.log("Registered", response.toString)
+    });
+
 (function loadPage() {
     let loginForm = document.getElementById("loginForm");
     loginForm.addEventListener("submit", (event) => {
