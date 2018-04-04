@@ -7,7 +7,7 @@ let container = document.getElementById('results');
 const token = window.localStorage.getItem('token');
 
 (function loadButtons() {
-    let url = `${window.location.origin}/api/books`;
+    let url = `${window.location.origin}/api/user`;
     let libraryButton = document.getElementById("libraryButton");
     let userAdd = document.getElementById("userAdd");
     let home = document.getElementById("accountHome");
