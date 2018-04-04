@@ -25,6 +25,7 @@ const token = window.localStorage.getItem('token');
             .then(response => {
                 console.log("Success:", JSON.stringify(response));
             })
+            console.log(token);
             }); //local host and then call to users with an authorization header
     
     userAdd.addEventListener("click", () => {
@@ -36,20 +37,40 @@ const token = window.localStorage.getItem('token');
 })();
 
 (function loadPage() {
-    let header = document.querySelector('h1');
-    let url = `${window.location.origin}/api/user`;
-    let username = "Terry";
-    fetch(url, {
+
+    let myHeaders = new Headers();
+    let myInit = {
         method: "GET",
-        headers: new Headers({
+        headers: {
             authorization: token
-        })
-    })
+        }
+    };
+    let header = document.querySelector("h1");
+    let url = `${window.location.origin}/api/user`;
+    let request = new Request(url, myInit);
+    
+    fetch(url, myInit)
+        .then(response => response.json())
         .catch(error => console.error("Error:", error))
         .then(response => {
-            console.log("Success:", JSON.stringify(response));
-        }); //local host and then call to users with an authorization header
-    header.textContent = `Welcome to Your Library, ${username}!`;
+            console.log(response);
+            console.log("Success:", response);
+            const userInfo = response;
+            console.log(userInfo);
+            let username = userInfo["username"];
+            console.log(username);
+            header.textContent = `Welcome to Your Library, ${username}!`;
+            let books = userInfo["books"];
+            let myLibrary = document.getElementById("library");
+            for (var i=0; i<books.length; i++) {
+                let book = books[i];
+                let title = document.createElement('li');
+                title.textContent = book["title"];
+                myLibrary.appendChild(title);
+            }
+        });
+
+     //local host and then call to users with an authorization header
 }());
 
 let query = async (parameters) => {
